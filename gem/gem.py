@@ -15,6 +15,8 @@ from pdfminer.pdfpage import PDFPage
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.converter import PDFPageAggregator
 from pdfminer.layout import LAParams, LTTextBox, LTTextLine
+import requests
+
 
 def process_pdf_to_xls(request):
     dirname = os.getcwd()
@@ -22,7 +24,7 @@ def process_pdf_to_xls(request):
     outputpath = os.path.join(dirname, "media/output/")
     attachmentpath = os.path.join(dirname, "media/attachments/")
     rownum = 1
-    bidnum = bidend = ttlqty = item =  officer = address = location = organisation = pincode = 'N/A'
+    endpointo = startpointo = bidnum = bidend = ttlqty = item =  officer = address = location = answerr = organisation = pincode = 'N/A'
 
     onlyfiles = [f for f in listdir(attachmentpath) if isfile(join(attachmentpath, f))]
 
@@ -90,7 +92,7 @@ def process_pdf_to_xls(request):
 
 
 
-
+#a different method to scan files for different values
             fp = open(path, 'rb')
 
             parser = PDFParser(fp)
@@ -113,7 +115,7 @@ def process_pdf_to_xls(request):
 
             extracted_text = extracted_text.split()
             
-
+            print(extracted_text)
             for i in extracted_text:
                 if i == 'Dated:':
                     bidnum = extracted_text[extracted_text.index(i)-1]
@@ -122,38 +124,35 @@ def process_pdf_to_xls(request):
                     newkeyword = extracted_text[extracted_text.index(i)+3]
                     if newkeyword == 'Quantity':
                         newkeyword = extracted_text[extracted_text.index(i)+4]
-                        if newkeyword == 'S.No.':
-                            startpoint = extracted_text.index(i)+8
+                        if newkeyword == 'S.No.' and startpointo == 'N/A':
+                            startpointo = extracted_text.index(i)+8
+
+                            
                 if i == 'Address':
                     if extracted_text[extracted_text.index(i)+1] == 'Quantity':
                         if extracted_text[extracted_text.index(i)+2] == 'Delivery':
-                            endpoint = extracted_text.index(i)
+                            endpointo = extracted_text.index(i)
 
+#Workaround for address 
+            if endpointo != 'N/A':
+                address =''
+                for i in extracted_text[endpointo+4:endpointo+20]:
+                    address += i + ' '
+                pincode = address[:6]
+
+#Workaround for officer 
             if officer == 'N/A':
                 officer = ''
-                for i in extracted_text[startpoint:endpoint]:
+                for i in extracted_text[startpointo:endpointo]:
                     officer += i + ' '
 
             
 
-            if pincode == '245101':       
-                location = 'Ghazibad' 
-            elif pincode == '110075':
-                location = 'South West Delhi'
-            elif pincode == '110078':
-                location = 'West Delhi'
-            elif pincode == '110007':
-                location = 'North Delhi'
-            elif pincode == '110052':
-                location = 'North West Delhi'
-            elif pincode == '211011':
-                location = 'Allahabad'
-            elif pincode == '245101':
-                location = 'Ghaziabad'
-            elif pincode == '110001' or '110055':
-                location = 'Central Delhi'
-            else:
-                location = 'N/A'
+
+            if pincode != 'N/A':
+                answerr = requests.get(f"https://api.postalpincode.in/pincode/{pincode}")
+                answerr = answerr.json()
+                location = answerr[0]['PostOffice'][0]['District']
 
 
             print(f'Info added [SNO.= {rownum-1}]')
@@ -168,7 +167,7 @@ def process_pdf_to_xls(request):
             sheet1.write(rownum, 8, location)
             sheet1.write(rownum, 10, organisation)
 
-            bidnum = bidend = ttlqty = item =  officer = address = location = organisation = pincode = 'N/A'
+            endpointo = startpointo = bidnum = bidend = ttlqty = item =  officer = answerr =  address = location = organisation = pincode = 'N/A'
 
 
     wb.save(outputpath + 'Bid' + '.xls')

@@ -27,7 +27,8 @@ SECRET_KEY = 'kj08*@*vu8=l$tjpo4d6_#@63-m(+003d7u8yzw45o$&amo=ge'
 DEBUG = True
 
 ALLOWED_HOSTS = ['192.168.1.218',
-                 '192.168.1.219',]
+                 '192.168.1.219',
+                 '127.0.0.1',]
 
 
 # Application definition
@@ -79,7 +80,7 @@ WSGI_APPLICATION = 'gemsite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 

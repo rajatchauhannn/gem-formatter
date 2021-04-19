@@ -1270,3 +1270,4 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 1618823326652	Marionette	INFO	Listening on port 42513
 1618823326750	Marionette	WARN	TLS certificate errors will be ignored for this session
 1618823351984	Marionette	INFO	Stopped listening on port 42513
+1618824163253	Marionette	INFO	Stopped listening on port 35491

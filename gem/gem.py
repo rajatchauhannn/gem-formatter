@@ -35,7 +35,7 @@ def process_pdf_to_xls(request):
 
 
     for file in onlyfiles:
-        if file[-4:] == '.pdf':
+        if file[-4:] == '.pdf' and file[:3] == 'GeM':
             rownum += 1
             newfile = file
             print('Extracting data from ' + newfile + '...')

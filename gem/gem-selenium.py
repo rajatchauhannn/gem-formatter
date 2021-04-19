@@ -11,40 +11,30 @@ from bs4 import BeautifulSoup
 from urllib.request import Request, urlopen
 import re
 
-url = "https://bidplus.gem.gov.in/advance-search?state_name=DELHI&city_name=CENTRAL+DELHI&from_date=18-04-2021&to_date=30-04-2021&searchlocation=Search"
 dirname = os.getcwd()
-path = os.path.join(dirname, "media/geckodriver")
-
-driver = webdriver.Firefox(executable_path=path)
+path = os.path.join(dirname, "media/operadriver")
+driver = webdriver.Opera(executable_path=path)
+url = "https://bidplus.gem.gov.in/advance-search?state_name=DELHI&city_name=CENTRAL+DELHI&from_date=18-04-2021&to_date=30-04-2021&searchlocation=Search&page_no=1"
 driver.get(url)
+flag = driver.find_elements_by_xpath("//strong[contains(text(), 'Empty!')]")
+pageno = 1
+while (flag == []):
+    url = f"https://bidplus.gem.gov.in/advance-search?state_name=DELHI&city_name=CENTRAL+DELHI&from_date=18-04-2021&to_date=30-04-2021&searchlocation=Search&page_no={pageno}"
 
-WebDriverWait(driver, 10)
+    driver.get(url)
 
-items = driver.find_elements_by_xpath("//span[contains(text(), 'All in One PC') or contains(text(), 'Desktop Computers')]")
+    items = driver.find_elements_by_xpath("//span[contains(text(), 'All in One PC') or contains(text(), 'Desktop Computers') or contains(text(), 'Server')]")
 
-for element in items:
-    # print(element.text)
-    element = element.find_element_by_xpath("..")
-    element = element.find_element_by_xpath("..")
-    parent = element.find_element_by_xpath("..")
+    for element in items:
+        print(element.text)
+        element = element.find_element_by_xpath("..")
+        element = element.find_element_by_xpath("..")
+        parent = element.find_element_by_xpath("..")
 
-    print(parent.text[8:26])
-    bid_type = parent.text[8:11]
-    bid_year = parent.text[12:16]
-    bid_let = parent.text[17:18]
-    bid_dig = parent.text[19:26]
-    #https://bidplus.gem.gov.in/advance-search?bno=GEM%2F2021%2FB%2F1161309&category=&searchbid=Search
-    #https://bidplus.gem.gov.in/advance-search?bno={bid_type}%2F{bid_year}%2F{bid_let}%2F{bid_dig}&category=&searchbid=Search
+        link = parent.find_element_by_xpath("//a[contains(@href, '/show')]").click()
+        WebDriverWait(driver, 1000)
 
-    req = Request(f"https://bidplus.gem.gov.in/advance-search?bno={bid_type}%2F{bid_year}%2F{bid_let}%2F{bid_dig}&category=&searchbid=Search")
-    html_page = urlopen(req)
+    flag = driver.find_elements_by_xpath("//strong[contains(text(), 'Empty!')]")
+    pageno+= 1
 
-    soup = BeautifulSoup(html_page, "lxml")
-
-    links = []
-    for link in soup.findAll('a'):
-        links.append(link.get('href'))
-
-    for link in links:
-        if link[:5] =='/show' :
-            print(link)
+driver.quit()

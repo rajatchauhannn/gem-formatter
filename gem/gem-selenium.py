@@ -8,8 +8,15 @@ from selenium.webdriver.opera.options import Options
 
 dirname = os.getcwd()
 OPERADRIVER_PATH = os.path.join(dirname, "media/operadriver")
+PREFPATH =os.path.join(dirname, "media/")
+prefs = {"download.default_directory" : PREFPATH,  "directory_upgrade": True}
+opts = Options()
 
-driver = webdriver.Opera(executable_path=OPERADRIVER_PATH)
+opts.add_experimental_option("prefs", prefs)
+
+
+
+driver = webdriver.Opera(executable_path=OPERADRIVER_PATH, options=opts)
 
 def find_and_download(state,city,start_date,end_date):
     flag = driver.find_elements_by_xpath("//strong[contains(text(), 'Empty!')]")
